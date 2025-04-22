@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AutoParts Hub - Your One-Stop Auto Parts Store</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+  <!-- Header/Navbar -->
+  <header>
+    <div class="navbar">
+      <div class="logo">AutoParts Hub</div>
+      <nav>
+        <ul>
+          <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
+          <li><a href="#categories"><i class="fas fa-th-large"></i> Categories</a></li>
+          <li><a href="#products"><i class="fas fa-tag"></i> Products</a></li>
+          <li><a href="#how-it-works"><i class="fas fa-question-circle"></i> How It Works</a></li>
+          <li><a href="#about"><i class="fas fa-info-circle"></i> About Us</a></li>
+          <li><a href="#cart"><i class="fas fa-shopping-cart"></i> Cart <span id="cart-badge">0</span></a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu-btn">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Welcome to AutoParts Hub</h1>
+      <p>Your one-stop shop for premium quality auto parts at unbeatable prices.</p>
+      <a href="#products" class="btn"><i class="fas fa-search"></i> Browse Products</a>
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section id="categories">
+    <div class="container">
+      <h2>Top Categories</h2>
+      <div class="category-grid">
+        <div class="category-card" data-category="brakes">
+          <i class="fas fa-car-battery"></i>
+          <h3>Brakes</h3>
+        </div>
+        <div class="category-card" data-category="suspension">
+          <i class="fas fa-cogs"></i>
+          <h3>Suspension</h3>
+        </div>
+        <div class="category-card" data-category="engine">
+          <i class="fas fa-engine"></i>
+          <h3>Engine</h3>
+        </div>
+        <div class="category-card" data-category="transmission">
+          <i class="fas fa-cog"></i>
+          <h3>Transmission</h3>
+        </div>
+        <div class="category-card" data-category="lighting">
+          <i class="fas fa-lightbulb"></i>
+          <h3>Lighting</h3>
+        </div>
+        <div class="category-card" data-category="exhaust">
+          <i class="fas fa-smog"></i>
+          <h3>Exhaust</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Products -->
+  <section id="products">
+    <div class="container">
+      <h2>Featured Products</h2>
+      <div class="product-grid" id="products-grid">
+        <!-- Products will be loaded dynamically from JavaScript -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Cart Section -->
+  <section id="cart">
+    <div class="container">
+      <h2>Your Cart</h2>
+      <div id="cart-items">
+        <!-- Cart items will be loaded dynamically from JavaScript -->
+      </div>
+      <p id="cart-total">Total: ₹0</p>
+      <div class="cart-buttons">
+        <a href="#products" class="btn"><i class="fas fa-arrow-left"></i> Continue Shopping</a>
+        <a href="#checkout" class="btn" id="checkout-btn"><i class="fas fa-credit-card"></i> Proceed to Checkout</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Checkout Section (Shipping Address) -->
+  <section id="checkout" class="hide-section">
+    <div class="container">
+      <h2>Shipping Information</h2>
+      <div class="checkout-progress">
+        <div class="progress-step active">
+          <div class="step-number">1</div>
+          <div class="step-label">Shipping</div>
+        </div>
+        <div class="progress-line"></div>
+        <div class="progress-step">
+          <div class="step-number">2</div>
+          <div class="step-label">Payment</div>
+        </div>
+        <div class="progress-line"></div>
+        <div class="progress-step">
+          <div class="step-number">3</div>
+          <div class="step-label">Confirmation</div>
+        </div>
+      </div>
+      <form id="shipping-form">
+        <div class="form-group">
+          <label for="full-name">Full Name:</label>
+          <input type="text" id="full-name" name="full-name" placeholder="Enter your full name" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address:</label>
+          <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone Number:</label>
+          <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+        </div>
+        <div class="form-group">
+          <label for="address">Street Address:</label>
+          <input type="text" id="address" name="address" placeholder="Enter your street address" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group half">
+            <label for="city">City:</label>
+            <input type="text" id="city" name="city" placeholder="Enter your city" required>
+          </div>
+          <div class="form-group half">
+            <label for="state">State:</label>
+            <input type="text" id="state" name="state" placeholder="Enter your state" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group half">
+            <label for="pincode">PIN Code:</label>
+            <input type="text" id="pincode" name="pincode" placeholder="Enter your PIN code" required>
+          </div>
+          <div class="form-group half">
+            <label for="country">Country:</label>
+            <input type="text" id="country" name="country" value="India" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn" id="shipping-next-btn"><i class="fas fa-arrow-right"></i> Continue to Payment</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Payment Section -->
+  <section id="payment" class="hide-section">
+    <div class="container">
+      <h2>Payment Method</h2>
+      <div class="checkout-progress">
+        <div class="progress-step completed">
+          <div class="step-number"><i class="fas fa-check"></i></div>
+          <div class="step-label">Shipping</div>
+        </div>
+        <div class="progress-line completed"></div>
+        <div class="progress-step active">
+          <div class="step-number">2</div>
+          <div class="step-label">Payment</div>
+        </div>
+        <div class="progress-line"></div>
+        <div class="progress-step">
+          <div class="step-number">3</div>
+          <div class="step-label">Confirmation</div>
+        </div>
+      </div>
+      <div class="order-summary-container">
+        <div class="order-summary">
+          <h3>Order Summary</h3>
+          <div id="order-items">
+            <!-- Order items will be loaded dynamically -->
+          </div>
+          <div class="order-total">
+            <div class="order-subtotal">
+              <span>Subtotal:</span>
+              <span id="order-subtotal">₹0</span>
+            </div>
+            <div class="order-shipping">
+              <span>Shipping:</span>
+              <span id="order-shipping">₹100</span>
+            </div>
+            <div class="order-tax">
+              <span>Tax (18% GST):</span>
+              <span id="order-tax">₹0</span>
+            </div>
+            <div class="order-final-total">
+              <span>Total:</span>
+              <span id="order-final-total">₹0</span>
+            </div>
+          </div>
+        </div>
+        <form id="payment-form">
+          <div class="payment-methods">
+            <h3>Choose a Payment Method</h3>
+            <div class="payment-method-options">
+              <div class="payment-option">
+                <input type="radio" id="upi" name="payment-method" value="upi">
+                <label for="upi">UPI</label>
+              </div>
+              <div class="payment-option">
+                <input type="radio" id="credit-card" name="payment-method" value="credit-card">
+                <label for="credit-card">Credit/Debit Card</label>
+              </div>
+              <div class="payment-option">
+                <input type="radio" id="net-banking" name="payment-method" value="net-banking">
+                <label for="net-banking">Net Banking</label>
+              </div>
+              <div class="payment-option">
+                <input type="radio" id="cod" name="payment-method" value="cod" checked>
+                <label for="cod">Cash on Delivery</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- UPI Payment Details -->
+          <div id="upi-details" class="payment-details">
+            <div class="qr-code-container">
+              <img src="/img/upi-qr.png" alt="UPI QR Code" class="qr-code">
+              <p>Scan the QR code with any UPI app</p>
+            </div>
+            <div class="form-group">
+              <label for="upi-id">UPI ID:</label>
+              <input type="text" id="upi-id" name="upi-id" placeholder="Enter your UPI ID (e.g., yourname@bankname)">
+            </div>
+          </div>
+
+          <!-- Credit/Debit Card Payment Details -->
+          <div id="credit-card-details" class="payment-details">
+            <div class="form-group">
+              <label for="card-number">Card Number:</label>
+              <input type="text" id="card-number" name="card-number" placeholder="1234 5678 9012 3456">
+            </div>
+            <div class="form-row">
+              <div class="form-group half">
+                <label for="card-expiry">Expiry Date:</label>
+                <input type="text" id="card-expiry" name="card-expiry" placeholder="MM/YY">
+              </div>
+              <div class="form-group half">
+                <label for="card-cvv">CVV:</label>
+                <input type="text" id="card-cvv" name="card-cvv" placeholder="123">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="card-name">Name on Card:</label>
+              <input type="text" id="card-name" name="card-name" placeholder="Enter name as shown on card">
+            </div>
+          </div>
+
+          <!-- Net Banking Payment Details -->
+          <div id="net-banking-details" class="payment-details">
+            <div class="form-group">
+              <label for="bank-select">Select Bank:</label>
+              <select id="bank-select" name="bank-select">
+                <option value="">--Select Bank--</option>
+                <option value="sbi">State Bank of India</option>
+                <option value="hdfc">HDFC Bank</option>
+                <option value="icici">ICICI Bank</option>
+                <option value="axis">Axis Bank</option>
+                <option value="kotak">Kotak Mahindra Bank</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- COD Payment Details -->
+          <div id="cod-details" class="payment-details">
+            <div class="cod-info">
+              <i class="fas fa-info-circle"></i>
+              <p>Pay in cash at the time of delivery. Additional COD fee of ₹50 may apply.</p>
+            </div>
+          </div>
+
+          <div class="form-group payment-actions">
+            <button type="button" class="btn secondary" id="payment-back-btn"><i class="fas fa-arrow-left"></i> Back</button>
+            <button type="submit" class="btn" id="payment-submit-btn"><i class="fas fa-lock"></i> Place Order</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Order Confirmation Section -->
+  <section id="order-confirmation" class="hide-section">
+    <div class="container">
+      <div class="confirmation-content">
+        <div class="success-animation">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <h2>Order Placed Successfully!</h2>
+        <p>Thank you for shopping with AutoParts Hub. Your order has been received and is being processed.</p>
+        <div class="order-details">
+          <div class="order-info">
+            <h3>Order Information</h3>
+            <p><strong>Order ID:</strong> <span id="order-id">APH25042100001</span></p>
+            <p><strong>Order Date:</strong> <span id="order-date">April 21, 2025</span></p>
+            <p><strong>Payment Method:</strong> <span id="conf-payment-method">Cash on Delivery</span></p>
+          </div>
+          <div class="customer-info">
+            <h3>Customer Information</h3>
+            <p><strong>Name:</strong> <span id="conf-name"></span></p>
+            <p><strong>Email:</strong> <span id="conf-email"></span></p>
+            <p><strong>Phone:</strong> <span id="conf-phone"></span></p>
+          </div>
+          <div class="shipping-info">
+            <h3>Shipping Address</h3>
+            <p id="conf-address"></p>
+          </div>
+        </div>
+        <div class="invoice-section">
+          <h3>Order Summary</h3>
+          <div id="invoice-items">
+            <!-- Invoice items will be loaded dynamically -->
+          </div>
+          <div class="invoice-totals">
+            <div class="invoice-subtotal invoice-row">
+              <span>Subtotal:</span>
+              <span id="invoice-subtotal">₹0</span>
+            </div>
+            <div class="invoice-shipping invoice-row">
+              <span>Shipping:</span>
+              <span id="invoice-shipping">₹100</span>
+            </div>
+            <div class="invoice-tax invoice-row">
+              <span>Tax (18% GST):</span>
+              <span id="invoice-tax">₹0</span>
+            </div>
+            <div class="invoice-total invoice-row">
+              <span>Total:</span>
+              <span id="invoice-total">₹0</span>
+            </div>
+          </div>
+        </div>
+        <div class="invoice-actions">
+          <button class="btn secondary" id="download-invoice"><i class="fas fa-download"></i> Download Invoice</button>
+          <a href="#" class="btn"><i class="fas fa-home"></i> Back to Home</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how-it-works">
+    <div class="container">
+      <h2>How It Works</h2>
+      <div class="steps-container">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3>Browse</h3>
+          <p>Find your required auto part from our extensive collection</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3>Add to Cart</h3>
+          <p>Add items to cart and proceed to checkout</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3>Payment</h3>
+          <p>Choose your preferred payment method</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <h3>Delivery</h3>
+          <p>Get it delivered to your doorstep</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Choose Us -->
+  <section id="why-choose">
+    <div class="container">
+      <h2>Why Choose AutoParts Hub?</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <h3>Genuine Parts</h3>
+          <p>OEM & aftermarket parts with quality assurance</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-shipping-fast"></i>
+          </div>
+          <h3>Fast Shipping</h3>
+          <p>Express delivery across India within 2-4 business days</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-headset"></i>
+          </div>
+          <h3>24x7 Support</h3>
+          <p>Customer service available round the clock</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-undo"></i>
+          </div>
+          <h3>Easy Returns</h3>
+          <p>30-day return policy with no questions asked</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section id="testimonials">
+    <div class="container">
+      <h2>What Our Customers Say</h2>
+      <div class="testimonials-container">
+        <div class="testimonial-card">
+          <p class="testimonial-text">"Excellent service! Got my brake pads delivered within 2 days and they were exactly as described. Will definitely order again."</p>
+          <p class="testimonial-author">- Rohan Mehta, Mumbai</p>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-text">"Best prices and authentic products. The customer support team helped me find the exact parts I needed for my car model. Highly recommend!"</p>
+          <p class="testimonial-author">- Priya Kumar, Delhi</p>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-text">"I've been buying from AutoParts Hub for over a year now. Their quality is consistent and prices are much better than local shops."</p>
+          <p class="testimonial-author">- Amit Singh, Bangalore</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Us -->
+  <section id="about">
+    <div class="container">
+      <h2>About Us</h2>
+      <div class="about-content">
+        <p>AutoParts Hub is a team of passionate auto experts committed to delivering top-quality spare parts at the most competitive prices. Founded in 2020, we've quickly grown to become India's most trusted online auto parts retailer.</p>
+        <p>With direct tie-ups with leading brands and manufacturers, we ensure 100% authenticity and customer satisfaction. Our mission is to make quality auto parts accessible and affordable for everyone.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="#">Home</a></li>
+          <li><a href="#products">Products</a></li>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Customer Support</h3>
+        <ul>
+          <li><a href="#">FAQs</a></li>
+          <li><a href="#">Shipping Policy</a></li>
+          <li><a href="#">Return Policy</a></li>
+          <li><a href="#">Track Order</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Contact Us</h3>
+        <ul>
+          <li><i class="fas fa-envelope"></i> support@autopartshub.in</li>
+          <li><i class="fas fa-phone"></i> +91-9876543210</li>
+          <li><i class="fas fa-map-marker-alt"></i> Mumbai, Maharashtra, India</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 AutoParts Hub. All rights reserved.</p>
+      <p>
+        <a href="#">Privacy Policy</a> |
+        <a href="#">Terms & Conditions</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- Modal for Success/Error Messages -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close">&times;</span>
+      <div class="modal-icon">
+        <i class="fas fa-check-circle success-icon"></i>
+        <i class="fas fa-times-circle error-icon"></i>
+      </div>
+      <h3 id="modal-title">Success!</h3>
+      <p id="modal-message">Your action was completed successfully.</p>
+      <button id="modal-button" class="btn">OK</button>
+    </div>
+  </div>
+
+  <!-- Hidden div for invoice generation -->
+  <div id="invoice-template" style="display: none;">
+    <div class="invoice-header">
+      <div class="company-logo">AutoParts Hub</div>
+      <div class="invoice-title">
+        <h2>INVOICE</h2>
+        <p>Invoice #: <span id="invoice-number">APH25042100001</span></p>
+        <p>Date: <span id="invoice-date">April 21, 2025</span></p>
+      </div>
+    </div>
+    <div class="invoice-details">
+      <div class="billed-to">
+        <h3>Billed To:</h3>
+        <p id="invoice-customer-name"></p>
+        <p id="invoice-customer-address"></p>
+        <p id="invoice-customer-phone"></p>
+        <p id="invoice-customer-email"></p>
+      </div>
+      <div class="payment-info">
+        <h3>Payment Information:</h3>
+        <p>Payment Method: <span id="invoice-payment-method"></span></p>
+        <p>Order Date: <span id="invoice-order-date"></span></p>
+        <p>Order ID: <span id="invoice-order-id"></span></p>
+      </div>
+    </div>
+    <div class="invoice-items-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="invoice-items-list">
+          <!-- Invoice items will be inserted here -->
+        </tbody>
+      </table>
+    </div>
+    <div class="invoice-summary">
+      <div class="invoice-summary-row">
+        <span>Subtotal:</span>
+        <span id="invoice-template-subtotal"></span>
+      </div>
+      <div class="invoice-summary-row">
+        <span>Shipping:</span>
+        <span id="invoice-template-shipping">₹100</span>
+      </div>
+      <div class="invoice-summary-row">
+        <span>Tax (18% GST):</span>
+        <span id="invoice-template-tax"></span>
+      </div>
+      <div class="invoice-summary-row total">
+        <span>Total:</span>
+        <span id="invoice-template-total"></span>
+      </div>
+    </div>
+    <div class="invoice-footer">
+      <p>Thank you for shopping with AutoParts Hub!</p>
+      <p>For any queries, please contact us at support@autopartshub.in or +91-9876543210</p>
+    </div>
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
